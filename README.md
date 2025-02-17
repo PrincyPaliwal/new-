@@ -1,95 +1,95 @@
-## AI-Powered Data Quality & Anomaly Detection
-
-
+# Serverless Databricks Job Orchestrator
 
 ## Overview
+The **Serverless Databricks Job Orchestrator** eliminates the need for Apache Airflow by leveraging AWS-native orchestration tools. This approach simplifies workflow management, reduces infrastructure overhead, and enhances security and scalability by utilizing AWS Step Functions, AWS Lambda, and AWS CloudWatch.
 
-The AI-Powered Data Quality & Anomaly Detection repository provides a comprehensive solution for ensuring data integrity and detecting anomalies using **AWS Glue DataBrew, Databricks AutoML, and AWS CloudWatch**. It automates data cleansing, anomaly detection, and real-time alerting to maintain high-quality data for analytics and decision-making.
-
-This repository includes tools and workflows that integrate seamlessly with **AWS and Databricks**, helping teams monitor, govern, and enhance data quality efficiently.
+## Features
+- **No Airflow Dependency**: Reduces the burden of maintaining an Airflow instance.
+- **Cost Efficiency**: Pay-as-you-go pricing model without persistent infrastructure.
+- **Native AWS Integration**: Seamless connectivity with AWS Step Functions, Lambda, and CloudWatch.
+- **Simplified Security and Access Control**: Uses IAM roles and AWS Secrets Manager.
+- **Scalability and Fault Tolerance**: Automatic scaling with built-in error handling.
 
 ## Folder Structure
+The project is structured into key components to ensure modularity and ease of use:
 
-The repository is structured into **Accelerators**, **Operational Tools**, and **Documentation** to support various data quality and anomaly detection use cases.
+### 1. **Orchestration Scripts**
+This folder contains automation scripts that integrate with AWS services:
+- **Lambda Functions**: Serverless functions to trigger Databricks jobs.
+- **Step Functions Definitions**: AWS Step Functions state machine definitions for job orchestration.
 
-### 1. Accelerators
+### 2. **IAM Policies & Security**
+Contains IAM role and policy definitions required to securely execute Databricks jobs:
+- **IAM Role for Lambda**: Grants permissions to invoke Step Functions, write logs, and call the Databricks API.
+- **AWS Secrets Manager Integration**: Securely stores and manages Databricks API credentials.
 
-Pre-built solutions designed to address specific challenges in data quality, anomaly detection, and governance:
-
-- [**Data Quality Governance**](https://github.kadellabs.com/digiclave/databricks-accelerators/-/tree/dev/Accelerators/data_quality_governance?ref_type=heads): Ensures data consistency and integrity in Databricks environments.
-- [**Automated Anomaly Detection**](https://github.kadellabs.com/digiclave/databricks-accelerators/-/tree/dev/Accelerators/anomaly_detection?ref_type=heads): Uses AutoML to detect data anomalies in real time.
-- [**CloudWatch Alerting**](https://github.kadellabs.com/digiclave/databricks-accelerators/-/tree/dev/Accelerators/cloudwatch_alerting?ref_type=heads): Real-time monitoring and alerting on data issues.
-
-### 2. Operational Tools
-
-Utilities and frameworks to support data quality monitoring and integration with various cloud platforms:
-
-- [**AWS Glue DataBrew Pipeline**](https://github.kadellabs.com/digiclave/databricks-accelerators/-/tree/dev/OTS_Tool/aws_glue_databrew?ref_type=heads): Automates data cleaning and transformation tasks.
-- [**Databricks AutoML Workflow**](https://github.kadellabs.com/digiclave/databricks-accelerators/-/tree/dev/OTS_Tool/databricks_automl?ref_type=heads): ML-based anomaly detection using Databricks AutoML.
-- [**Real-Time Monitoring**](https://github.kadellabs.com/digiclave/databricks-accelerators/-/tree/dev/OTS_Tool/real_time_monitoring?ref_type=heads): Integrates CloudWatch for real-time anomaly alerts.
-
-### 3. Documentation
-
-Guides and references for setting up and using the accelerators and tools:
-
-- **Accelerators Overview**: Details on available accelerators and their use cases.
-- **Operational Tools Overview**: Guides for implementing monitoring and anomaly detection frameworks.
+### 3. **Monitoring & Logging**
+Includes configurations for centralized logging and monitoring:
+- **CloudWatch Logs**: Stores logs from Lambda and Step Functions.
+- **Step Functions Execution History**: Tracks execution logs and error handling.
 
 ## Getting Started
 
 ### Prerequisites
-
-Ensure you have the following before using the accelerators and tools:
-
-- **Databricks Workspace**: With appropriate permissions on AWS.
-- **AWS Credentials**: IAM roles with permissions for DataBrew, CloudWatch, and SNS.
-- **Databricks API Token**: For AutoML and job execution.
-- **AWS CLI** configured (`aws configure`).
+To use this orchestrator, ensure you have:
+- **AWS Account** with permissions to use Step Functions, Lambda, and CloudWatch.
+- **Databricks Workspace** and API credentials.
+- **AWS CLI & Terraform (Optional)** for deployment automation.
 
 ### Installation
-
-Clone the repository to your local environment:
-
+Clone the repository to your local machine:
 ```bash
-git clone https://github.kadellabs.com/digiclave/databricks-accelerators.git
-cd databricks-accelerators
+git clone https://github.com/your-repo/serverless-databricks-orchestrator.git
+cd serverless-databricks-orchestrator
 ```
 
-Navigate to the desired accelerator or tool and follow the setup instructions.
-
-## Usage
-
-1. **Configure Cloud Credentials**: Set AWS IAM roles and Databricks tokens.
-2. **Run DataBrew Job**: Clean and preprocess data using Glue DataBrew.
-3. **Train AutoML Model**: Detect anomalies using Databricks AutoML.
-4. **Monitor and Alert**: Use AWS CloudWatch to detect issues and send alerts.
-
-Example command to run the pipeline locally:
-
-```bash
-python main.py
+### Setup
+#### 1. **Create an IAM Role for Lambda**
+Grant necessary permissions by attaching the following IAM policy:
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "states:StartExecution",
+      "Resource": "*"
+    }
+  ]
+}
 ```
 
-## Automation
+#### 2. **Deploy Lambda Function**
+- Configure the **Databricks API** details.
+- Deploy the function using AWS Lambda.
 
-For continuous monitoring, deploy as an **AWS Lambda function** or schedule Databricks Jobs:
+#### 3. **Create an AWS Step Functions State Machine**
+- Define the state machine JSON configuration.
+- Replace placeholders for **region, account ID, and Lambda function name**.
+- Deploy the state machine via AWS Console or Terraform.
 
-- Automate anomaly detection with scheduled runs.
-- Set up **SNS, Slack, and PagerDuty** notifications for real-time alerting.
+### Usage
+1. **Manually Trigger the Step Function**
+   - Navigate to AWS Step Functions.
+   - Start execution and monitor logs.
+2. **Automate Execution**
+   - Set up an AWS EventBridge rule to trigger workflows based on schedule or events.
+
+## Monitoring & Debugging
+- **CloudWatch Logs**: Find execution logs under `/aws/lambda/YourLambdaFunctionName`.
+- **Step Functions Execution History**: Track execution flow and errors in the AWS Console.
 
 ## Contributions
-
-We welcome contributions! Submit a pull request or open an issue for feature requests or improvements.
+We welcome contributions! If you have ideas for improvements, submit a pull request.
 
 ## License
-
-This project is licensed under the MIT License.
+This project is licensed under the **MIT License**.
 
 ## Contact
-
-For support or questions, use the GitHub Issues section or contact the project maintainers via email.
-
----
-
-Let me know if you need any modifications! 🚀
+For issues, support, or questions, please use the GitHub Issues section or contact the project maintainer via email.
 
