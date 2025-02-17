@@ -1,91 +1,107 @@
-# Real-time Streaming Analytics Accelerator
+# Automated Data Ingestion Pipeline
 
 ## Overview
-The **Real-time Streaming Analytics Accelerator** processes streaming data such as logs, financial transactions, and IoT sensor data. This solution integrates **Amazon Kinesis, AWS Lambda, and Databricks Structured Streaming** to provide low-latency insights, scalability, and seamless integration with analytics platforms.
+
+The **Automated Data Ingestion Pipeline** streamlines the process of ingesting, transforming, and loading data from AWS services into Databricks Delta Lake. This solution enables schema evolution, real-time data streaming, and automated transformation using AWS-native tools.
 
 ## Features
-- **Low-latency analytics**: Processes real-time data streams for instant insights.
-- **Scalability**: Handles high-throughput event streams efficiently.
-- **Serverless Architecture**: Utilizes AWS Lambda for event-driven triggers.
-- **Integration with BI Tools**: Supports Amazon QuickSight, Tableau, and Power BI.
 
-## Use Cases
-1. **Log Analytics** – Monitor application logs for real-time anomaly detection.
-2. **Financial Transactions Monitoring** – Detect fraud and ensure compliance.
-3. **IoT & Sensor Data Processing** – Analyze real-time sensor readings.
-4. **Clickstream Analysis** – Track user activity and detect bot traffic.
-5. **Stock Market & Trading Analytics** – Process financial data streams for insights.
+- **End-to-End Data Pipeline**: Automates data ingestion from AWS to Databricks Delta Lake.
+- **AWS Glue Crawler**: Detects schema changes in S3 and updates metadata.
+- **Amazon Kinesis**: Streams real-time data for continuous processing.
+- **AWS EventBridge**: Triggers Databricks transformations based on Glue Crawler events.
+- **Databricks Integration**: Executes transformation notebooks and monitors execution.
+- **Delta Lake Schema Evolution**: Automatically adapts to changing data structures.
+- **AWS CloudFormation**: Automates infrastructure provisioning (Kinesis, Glue, S3).
+- **Scalability**: Designed to handle large-scale real-time and batch processing.
+- **Serverless Execution**: Uses AWS Lambda for event-driven triggers.
+- **Monitoring & Logging**: Tracks job execution and alerts on failures.
 
 ## Folder Structure
-### 1. **Infrastructure Provisioning**
-- **Terraform Scripts**: Provisions AWS resources including Kinesis, Redshift, S3, and IAM roles.
 
-### 2. **Streaming Data Processing**
-- **Databricks Structured Streaming Scripts**: Transforms and writes data to Delta Lake & Redshift.
+### 1. **Ingestion Scripts**
 
-### 3. **Event-driven Processing**
-- **AWS Lambda Functions**: Triggers notifications based on processed data events.
+Contains Python scripts for setting up and managing AWS services:
+
+- **Glue Crawler Setup**: Automates metadata detection and schema evolution.
+- **Kinesis Stream Processing**: Captures and processes real-time data.
+- **EventBridge Rules**: Manages event-based triggers for automation.
+
+### 2. **Databricks Integration**
+
+Includes:
+
+- **Notebook Execution Scripts**: Triggers Databricks notebooks for data transformation.
+- **Delta Lake Management**: Ensures seamless schema evolution and data governance.
+
+### 3. **Infrastructure Automation**
+
+Contains AWS CloudFormation templates for:
+
+- **Kinesis Stream Setup**
+- **S3 Bucket Configuration**
+- **Glue Database & Crawler Setup**
 
 ## Getting Started
+
 ### Prerequisites
-Ensure you have:
-- **AWS Account** with permissions for Kinesis, Redshift, S3, Lambda, and Databricks.
-- **Databricks Workspace** with appropriate configurations.
-- **Terraform & AWS CLI** for deployment automation.
+
+To deploy and use this pipeline, ensure you have:
+
+- **AWS Account** with permissions for Glue, Kinesis, S3, and EventBridge.
+- **Databricks Workspace** and API credentials.
+- **AWS CLI & Terraform (Optional)** for automated deployment.
 
 ### Installation
-Clone the repository:
+
+Clone the repository to your local machine:
+
 ```bash
-git clone https://github.com/your-repo/realtime-streaming-analytics.git
-cd realtime-streaming-analytics
+git clone https://github.com/your-repo/automated-data-ingestion.git
+cd automated-data-ingestion
 ```
 
 ### Setup & Deployment
-#### 1. **Deploy Infrastructure using Terraform**
+
+#### 1. **Deploy CloudFormation Stack**
+
 ```bash
-cd infra/
-terraform init
-terraform apply -auto-approve
+aws cloudformation create-stack --stack-name AWSIngestionPipeline --template-body file://cloudformation-template.yaml --capabilities CAPABILITY_NAMED_IAM
 ```
 
-#### 2. **Deploy Databricks Streaming Notebook**
-Run the Databricks Structured Streaming script to process Kinesis data and write to Delta Lake:
-```python
-spark.readStream \
-    .format("kinesis") \
-    .option("streamName", "real-time-stream") \
-    .option("region", "us-east-1") \
-    .load() \
-    .writeStream \
-    .format("delta") \
-    .outputMode("append") \
-    .start("s3://streaming-processed-data-bucket/delta-lake/")
-```
+#### 2. **Start Glue Crawler**
 
-#### 3. **Deploy AWS Lambda Function for Event Notifications**
 ```bash
-zip lambda.zip lambda/handler.py
-aws lambda create-function --function-name DataProcessedNotifier \
-    --runtime python3.8 --role arn:aws:iam::YOUR_ACCOUNT_ID:role/lambda_exec_role \
-    --handler handler.lambda_handler --zip-file fileb://lambda.zip
+python scripts/glue_crawler_setup.py
 ```
 
-### Data Visualization in Amazon QuickSight
-Once data is stored in Redshift:
-1. Connect Amazon QuickSight to Redshift.
-2. Create dashboards to visualize transactions and trends.
+#### 3. **Set Up EventBridge Rule**
 
-## Monitoring & Debugging
-- **AWS CloudWatch Logs**: Monitor Lambda and Kinesis event processing.
-- **Databricks UI**: Track real-time processing and job execution.
-- **Step Functions Execution History**: Validate workflow execution.
+```bash
+python scripts/eventbridge_rule_setup.py
+```
+
+#### 4. **Trigger Databricks Notebook**
+
+```bash
+python scripts/databricks_notebook_trigger.py
+```
+
+### Monitoring & Debugging
+
+- **CloudWatch Logs**: Tracks AWS Lambda and Glue job execution logs.
+- **Databricks Job Monitoring**: Monitors job runs and error handling.
+- **EventBridge Execution History**: Validates event triggers and execution success.
 
 ## Contributions
-We welcome contributions! Submit a pull request with enhancements.
+
+We welcome contributions! If you have ideas for improvements, submit a pull request.
 
 ## License
+
 This project is licensed under the **MIT License**.
 
 ## Contact
-For support or inquiries, use the GitHub Issues section or contact the project maintainer via email.
+
+For issues, support, or questions, please use the GitHub Issues section or contact the project maintainer via email.
 
