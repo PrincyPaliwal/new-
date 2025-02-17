@@ -1,79 +1,91 @@
-# Automated Data Lineage & Compliance Reporting
+# Real-time Streaming Analytics Accelerator
 
 ## Overview
-The **Automated Data Lineage & Compliance Reporting** system enhances security and governance by tracking data lineage, scanning for sensitive data, and enforcing access controls dynamically. This solution integrates AWS Macie, AWS IAM, and Databricks Unity Catalog to provide an automated compliance framework.
+The **Real-time Streaming Analytics Accelerator** processes streaming data such as logs, financial transactions, and IoT sensor data. This solution integrates **Amazon Kinesis, AWS Lambda, and Databricks Structured Streaming** to provide low-latency insights, scalability, and seamless integration with analytics platforms.
 
 ## Features
-- **AWS Macie Scanning**: Detects sensitive data in S3 buckets.
-- **Databricks Unity Catalog**: Tracks data lineage automatically.
-- **IAM Role Enforcement**: Restricts access to sensitive data dynamically.
-- **AWS Step Functions**: Automates the entire process from scanning to enforcement.
-- **Serverless Architecture**: Uses Lambda for event-driven execution.
+- **Low-latency analytics**: Processes real-time data streams for instant insights.
+- **Scalability**: Handles high-throughput event streams efficiently.
+- **Serverless Architecture**: Utilizes AWS Lambda for event-driven triggers.
+- **Integration with BI Tools**: Supports Amazon QuickSight, Tableau, and Power BI.
+
+## Use Cases
+1. **Log Analytics** – Monitor application logs for real-time anomaly detection.
+2. **Financial Transactions Monitoring** – Detect fraud and ensure compliance.
+3. **IoT & Sensor Data Processing** – Analyze real-time sensor readings.
+4. **Clickstream Analysis** – Track user activity and detect bot traffic.
+5. **Stock Market & Trading Analytics** – Process financial data streams for insights.
 
 ## Folder Structure
-### 1. **Macie & Security Enforcement**
-- **Macie Classification Job**: Identifies sensitive data.
-- **IAM Policy Automation**: Blocks unauthorized access based on Macie findings.
+### 1. **Infrastructure Provisioning**
+- **Terraform Scripts**: Provisions AWS resources including Kinesis, Redshift, S3, and IAM roles.
 
-### 2. **Databricks Lineage Tracking**
-- **Unity Catalog Setup**: Enables lineage tracking.
-- **Schema & Table Definitions**: Manages metadata and data governance.
+### 2. **Streaming Data Processing**
+- **Databricks Structured Streaming Scripts**: Transforms and writes data to Delta Lake & Redshift.
 
-### 3. **Automation & Orchestration**
-- **Step Functions Workflow**: Triggers Macie scans, stores results, and applies IAM restrictions.
-- **Lambda Functions**: Executes automated security actions.
+### 3. **Event-driven Processing**
+- **AWS Lambda Functions**: Triggers notifications based on processed data events.
 
 ## Getting Started
 ### Prerequisites
-To deploy this solution, ensure you have:
-- **AWS Account** with access to Macie, IAM, and Step Functions.
-- **Databricks Workspace** with Unity Catalog enabled.
-- **AWS CLI & Terraform (Optional)** for deployment automation.
+Ensure you have:
+- **AWS Account** with permissions for Kinesis, Redshift, S3, Lambda, and Databricks.
+- **Databricks Workspace** with appropriate configurations.
+- **Terraform & AWS CLI** for deployment automation.
 
 ### Installation
-Clone the repository to your local machine:
+Clone the repository:
 ```bash
-git clone https://github.com/your-repo/automated-data-lineage.git
-cd automated-data-lineage
+git clone https://github.com/your-repo/realtime-streaming-analytics.git
+cd realtime-streaming-analytics
 ```
 
 ### Setup & Deployment
-#### 1. **Deploy Macie Classification Job**
+#### 1. **Deploy Infrastructure using Terraform**
 ```bash
-python scripts/macie_scan_setup.py
+cd infra/
+terraform init
+terraform apply -auto-approve
 ```
 
-#### 2. **Set Up Databricks Unity Catalog**
-Run the following in Databricks:
-```sql
-CREATE METASTORE my_metastore MANAGED LOCATION 's3://databricks-unity-bucket/';
-CREATE CATALOG my_catalog;
-CREATE SCHEMA my_schema;
-CREATE TABLE customer_data (id INT, name STRING, email STRING) USING DELTA;
+#### 2. **Deploy Databricks Streaming Notebook**
+Run the Databricks Structured Streaming script to process Kinesis data and write to Delta Lake:
+```python
+spark.readStream \
+    .format("kinesis") \
+    .option("streamName", "real-time-stream") \
+    .option("region", "us-east-1") \
+    .load() \
+    .writeStream \
+    .format("delta") \
+    .outputMode("append") \
+    .start("s3://streaming-processed-data-bucket/delta-lake/")
 ```
 
-#### 3. **Deploy Step Functions Workflow**
+#### 3. **Deploy AWS Lambda Function for Event Notifications**
 ```bash
-aws stepfunctions create-state-machine --name DataComplianceWorkflow --definition file://step_function_definition.json --role-arn arn:aws:iam::YOUR_ACCOUNT_ID:role/StepFunctionsRole
+zip lambda.zip lambda/handler.py
+aws lambda create-function --function-name DataProcessedNotifier \
+    --runtime python3.8 --role arn:aws:iam::YOUR_ACCOUNT_ID:role/lambda_exec_role \
+    --handler handler.lambda_handler --zip-file fileb://lambda.zip
 ```
 
-#### 4. **Deploy Lambda Functions**
-```bash
-aws lambda create-function --function-name trigger-macie --runtime python3.9 --role arn:aws:iam::YOUR_ACCOUNT_ID:role/LambdaRole --handler macie_lambda.lambda_handler --zip-file fileb://macie_lambda.zip
-aws lambda create-function --function-name apply-iam-restrictions --runtime python3.9 --role arn:aws:iam::YOUR_ACCOUNT_ID:role/LambdaRole --handler iam_lambda.lambda_handler --zip-file fileb://iam_lambda.zip
-```
+### Data Visualization in Amazon QuickSight
+Once data is stored in Redshift:
+1. Connect Amazon QuickSight to Redshift.
+2. Create dashboards to visualize transactions and trends.
 
-### Monitoring & Debugging
-- **CloudWatch Logs**: Tracks Macie and Step Functions execution logs.
-- **Databricks UI**: View lineage logs under Data Explorer → Lineage tab.
-- **Step Functions Execution History**: Monitors event triggers and automation flows.
+## Monitoring & Debugging
+- **AWS CloudWatch Logs**: Monitor Lambda and Kinesis event processing.
+- **Databricks UI**: Track real-time processing and job execution.
+- **Step Functions Execution History**: Validate workflow execution.
 
 ## Contributions
-We welcome contributions! If you have ideas for improvements, submit a pull request.
+We welcome contributions! Submit a pull request with enhancements.
 
 ## License
 This project is licensed under the **MIT License**.
 
 ## Contact
-For issues, support, or questions, please use the GitHub Issues section or contact the project maintainer via email.
+For support or inquiries, use the GitHub Issues section or contact the project maintainer via email.
 
