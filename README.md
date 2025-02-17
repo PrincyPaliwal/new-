@@ -86,7 +86,6 @@ python scripts/eventbridge_rule_setup.py
 ```bash
 python scripts/databricks_notebook_trigger.py
 ```
-
 ### Monitoring & Debugging
 
 - **CloudWatch Logs**: Tracks AWS Lambda and Glue job execution logs.
