@@ -1,88 +1,79 @@
-# Serverless Databricks Job Orchestrator
+
+
+# Automated Data Ingestion Pipeline
 
 ## Overview
-The **Serverless Databricks Job Orchestrator** eliminates the need for Apache Airflow by leveraging AWS-native orchestration tools. This approach simplifies workflow management, reduces infrastructure overhead, and enhances security and scalability by utilizing AWS Step Functions, AWS Lambda, and AWS CloudWatch.
+The **Automated Data Ingestion Pipeline** streamlines the process of ingesting, transforming, and loading data from AWS services into Databricks Delta Lake. This solution enables schema evolution, real-time data streaming, and automated transformation using AWS-native tools.
 
 ## Features
-- **No Airflow Dependency**: Reduces the burden of maintaining an Airflow instance.
-- **Cost Efficiency**: Pay-as-you-go pricing model without persistent infrastructure.
-- **Native AWS Integration**: Seamless connectivity with AWS Step Functions, Lambda, and CloudWatch.
-- **Simplified Security and Access Control**: Uses IAM roles and AWS Secrets Manager.
-- **Scalability and Fault Tolerance**: Automatic scaling with built-in error handling.
+- **End-to-End Data Pipeline**: Automates data ingestion from AWS to Databricks Delta Lake.
+- **AWS Glue Crawler**: Detects schema changes in S3 and updates metadata.
+- **Amazon Kinesis**: Streams real-time data for continuous processing.
+- **AWS EventBridge**: Triggers Databricks transformations based on Glue Crawler events.
+- **Databricks Integration**: Executes transformation notebooks and monitors execution.
+- **Delta Lake Schema Evolution**: Automatically adapts to changing data structures.
+- **AWS CloudFormation**: Automates infrastructure provisioning (Kinesis, Glue, S3).
+- **Scalability**: Designed to handle large-scale real-time and batch processing.
+- **Serverless Execution**: Uses AWS Lambda for event-driven triggers.
+- **Monitoring & Logging**: Tracks job execution and alerts on failures.
 
 ## Folder Structure
-The project is structured into key components to ensure modularity and ease of use:
+### 1. **Ingestion Scripts**
+Contains Python scripts for setting up and managing AWS services:
+- **Glue Crawler Setup**: Automates metadata detection and schema evolution.
+- **Kinesis Stream Processing**: Captures and processes real-time data.
+- **EventBridge Rules**: Manages event-based triggers for automation.
 
-### 1. **Orchestration Scripts**
-This folder contains automation scripts that integrate with AWS services:
-- **Lambda Functions**: Serverless functions to trigger Databricks jobs.
-- **Step Functions Definitions**: AWS Step Functions state machine definitions for job orchestration.
+### 2. **Databricks Integration**
+Includes:
+- **Notebook Execution Scripts**: Triggers Databricks notebooks for data transformation.
+- **Delta Lake Management**: Ensures seamless schema evolution and data governance.
 
-### 2. **IAM Policies & Security**
-Contains IAM role and policy definitions required to securely execute Databricks jobs:
-- **IAM Role for Lambda**: Grants permissions to invoke Step Functions, write logs, and call the Databricks API.
-- **AWS Secrets Manager Integration**: Securely stores and manages Databricks API credentials.
-
-### 3. **Monitoring & Logging**
-Includes configurations for centralized logging and monitoring:
-- **CloudWatch Logs**: Stores logs from Lambda and Step Functions.
-- **Step Functions Execution History**: Tracks execution logs and error handling.
+### 3. **Infrastructure Automation**
+Contains AWS CloudFormation templates for:
+- **Kinesis Stream Setup**
+- **S3 Bucket Configuration**
+- **Glue Database & Crawler Setup**
 
 ## Getting Started
-
 ### Prerequisites
-To use this orchestrator, ensure you have:
-- **AWS Account** with permissions to use Step Functions, Lambda, and CloudWatch.
+To deploy and use this pipeline, ensure you have:
+- **AWS Account** with permissions for Glue, Kinesis, S3, and EventBridge.
 - **Databricks Workspace** and API credentials.
-- **AWS CLI & Terraform (Optional)** for deployment automation.
+- **AWS CLI & Terraform (Optional)** for automated deployment.
 
 ### Installation
 Clone the repository to your local machine:
 ```bash
-git clone https://github.com/your-repo/serverless-databricks-orchestrator.git
-cd serverless-databricks-orchestrator
+git clone https://github.com/your-repo/automated-data-ingestion.git
+cd automated-data-ingestion
 ```
 
-### Setup
-#### 1. **Create an IAM Role for Lambda**
-Grant necessary permissions by attaching the following IAM policy:
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
-      "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": "states:StartExecution",
-      "Resource": "*"
-    }
-  ]
-}
+### Setup & Deployment
+#### 1. **Deploy CloudFormation Stack**
+```bash
+aws cloudformation create-stack --stack-name AWSIngestionPipeline --template-body file://cloudformation-template.yaml --capabilities CAPABILITY_NAMED_IAM
 ```
 
-#### 2. **Deploy Lambda Function**
-- Configure the **Databricks API** details.
-- Deploy the function using AWS Lambda.
+#### 2. **Start Glue Crawler**
+```bash
+python scripts/glue_crawler_setup.py
+```
 
-#### 3. **Create an AWS Step Functions State Machine**
-- Define the state machine JSON configuration.
-- Replace placeholders for **region, account ID, and Lambda function name**.
-- Deploy the state machine via AWS Console or Terraform.
+#### 3. **Set Up EventBridge Rule**
+```bash
+python scripts/eventbridge_rule_setup.py
+```
 
-### Usage
-1. **Manually Trigger the Step Function**
-   - Navigate to AWS Step Functions.
-   - Start execution and monitor logs.
-2. **Automate Execution**
-   - Set up an AWS EventBridge rule to trigger workflows based on schedule or events.
+#### 4. **Trigger Databricks Notebook**
+```bash
+python scripts/databricks_notebook_trigger.py
+```
 
-## Monitoring & Debugging
-- **CloudWatch Logs**: Find execution logs under `/aws/lambda/YourLambdaFunctionName`.
-- **Step Functions Execution History**: Track execution flow and errors in the AWS Console.
+### Monitoring & Debugging
+- **CloudWatch Logs**: Tracks AWS Lambda and Glue job execution logs.
+- **Databricks Job Monitoring**: Monitors job runs and error handling.
+- **EventBridge Execution History**: Validates event triggers and execution success.
 
 ## Contributions
 We welcome contributions! If you have ideas for improvements, submit a pull request.
