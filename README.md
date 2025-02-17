@@ -1,79 +1,72 @@
-
-
-# Automated Data Ingestion Pipeline
+# Automated Data Lineage & Compliance Reporting
 
 ## Overview
-The **Automated Data Ingestion Pipeline** streamlines the process of ingesting, transforming, and loading data from AWS services into Databricks Delta Lake. This solution enables schema evolution, real-time data streaming, and automated transformation using AWS-native tools.
+The **Automated Data Lineage & Compliance Reporting** system enhances security and governance by tracking data lineage, scanning for sensitive data, and enforcing access controls dynamically. This solution integrates AWS Macie, AWS IAM, and Databricks Unity Catalog to provide an automated compliance framework.
 
 ## Features
-- **End-to-End Data Pipeline**: Automates data ingestion from AWS to Databricks Delta Lake.
-- **AWS Glue Crawler**: Detects schema changes in S3 and updates metadata.
-- **Amazon Kinesis**: Streams real-time data for continuous processing.
-- **AWS EventBridge**: Triggers Databricks transformations based on Glue Crawler events.
-- **Databricks Integration**: Executes transformation notebooks and monitors execution.
-- **Delta Lake Schema Evolution**: Automatically adapts to changing data structures.
-- **AWS CloudFormation**: Automates infrastructure provisioning (Kinesis, Glue, S3).
-- **Scalability**: Designed to handle large-scale real-time and batch processing.
-- **Serverless Execution**: Uses AWS Lambda for event-driven triggers.
-- **Monitoring & Logging**: Tracks job execution and alerts on failures.
+- **AWS Macie Scanning**: Detects sensitive data in S3 buckets.
+- **Databricks Unity Catalog**: Tracks data lineage automatically.
+- **IAM Role Enforcement**: Restricts access to sensitive data dynamically.
+- **AWS Step Functions**: Automates the entire process from scanning to enforcement.
+- **Serverless Architecture**: Uses Lambda for event-driven execution.
 
 ## Folder Structure
-### 1. **Ingestion Scripts**
-Contains Python scripts for setting up and managing AWS services:
-- **Glue Crawler Setup**: Automates metadata detection and schema evolution.
-- **Kinesis Stream Processing**: Captures and processes real-time data.
-- **EventBridge Rules**: Manages event-based triggers for automation.
+### 1. **Macie & Security Enforcement**
+- **Macie Classification Job**: Identifies sensitive data.
+- **IAM Policy Automation**: Blocks unauthorized access based on Macie findings.
 
-### 2. **Databricks Integration**
-Includes:
-- **Notebook Execution Scripts**: Triggers Databricks notebooks for data transformation.
-- **Delta Lake Management**: Ensures seamless schema evolution and data governance.
+### 2. **Databricks Lineage Tracking**
+- **Unity Catalog Setup**: Enables lineage tracking.
+- **Schema & Table Definitions**: Manages metadata and data governance.
 
-### 3. **Infrastructure Automation**
-Contains AWS CloudFormation templates for:
-- **Kinesis Stream Setup**
-- **S3 Bucket Configuration**
-- **Glue Database & Crawler Setup**
+### 3. **Automation & Orchestration**
+- **Step Functions Workflow**: Triggers Macie scans, stores results, and applies IAM restrictions.
+- **Lambda Functions**: Executes automated security actions.
 
 ## Getting Started
 ### Prerequisites
-To deploy and use this pipeline, ensure you have:
-- **AWS Account** with permissions for Glue, Kinesis, S3, and EventBridge.
-- **Databricks Workspace** and API credentials.
-- **AWS CLI & Terraform (Optional)** for automated deployment.
+To deploy this solution, ensure you have:
+- **AWS Account** with access to Macie, IAM, and Step Functions.
+- **Databricks Workspace** with Unity Catalog enabled.
+- **AWS CLI & Terraform (Optional)** for deployment automation.
 
 ### Installation
 Clone the repository to your local machine:
 ```bash
-git clone https://github.com/your-repo/automated-data-ingestion.git
-cd automated-data-ingestion
+git clone https://github.com/your-repo/automated-data-lineage.git
+cd automated-data-lineage
 ```
 
 ### Setup & Deployment
-#### 1. **Deploy CloudFormation Stack**
+#### 1. **Deploy Macie Classification Job**
 ```bash
-aws cloudformation create-stack --stack-name AWSIngestionPipeline --template-body file://cloudformation-template.yaml --capabilities CAPABILITY_NAMED_IAM
+python scripts/macie_scan_setup.py
 ```
 
-#### 2. **Start Glue Crawler**
-```bash
-python scripts/glue_crawler_setup.py
+#### 2. **Set Up Databricks Unity Catalog**
+Run the following in Databricks:
+```sql
+CREATE METASTORE my_metastore MANAGED LOCATION 's3://databricks-unity-bucket/';
+CREATE CATALOG my_catalog;
+CREATE SCHEMA my_schema;
+CREATE TABLE customer_data (id INT, name STRING, email STRING) USING DELTA;
 ```
 
-#### 3. **Set Up EventBridge Rule**
+#### 3. **Deploy Step Functions Workflow**
 ```bash
-python scripts/eventbridge_rule_setup.py
+aws stepfunctions create-state-machine --name DataComplianceWorkflow --definition file://step_function_definition.json --role-arn arn:aws:iam::YOUR_ACCOUNT_ID:role/StepFunctionsRole
 ```
 
-#### 4. **Trigger Databricks Notebook**
+#### 4. **Deploy Lambda Functions**
 ```bash
-python scripts/databricks_notebook_trigger.py
+aws lambda create-function --function-name trigger-macie --runtime python3.9 --role arn:aws:iam::YOUR_ACCOUNT_ID:role/LambdaRole --handler macie_lambda.lambda_handler --zip-file fileb://macie_lambda.zip
+aws lambda create-function --function-name apply-iam-restrictions --runtime python3.9 --role arn:aws:iam::YOUR_ACCOUNT_ID:role/LambdaRole --handler iam_lambda.lambda_handler --zip-file fileb://iam_lambda.zip
 ```
 
 ### Monitoring & Debugging
-- **CloudWatch Logs**: Tracks AWS Lambda and Glue job execution logs.
-- **Databricks Job Monitoring**: Monitors job runs and error handling.
-- **EventBridge Execution History**: Validates event triggers and execution success.
+- **CloudWatch Logs**: Tracks Macie and Step Functions execution logs.
+- **Databricks UI**: View lineage logs under Data Explorer → Lineage tab.
+- **Step Functions Execution History**: Monitors event triggers and automation flows.
 
 ## Contributions
 We welcome contributions! If you have ideas for improvements, submit a pull request.
