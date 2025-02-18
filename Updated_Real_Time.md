@@ -137,7 +137,6 @@ Follow these steps to deploy and run the accelerator:
 
 1.  **Create Databricks Notebook:** Create a new notebook (Python).
 
-2.  **Copy and Paste Code:**
 
     ```python
     # Databricks Notebook (Python)
